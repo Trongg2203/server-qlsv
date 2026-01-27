@@ -1,0 +1,26 @@
+<?php
+return [
+    'all' => 'Tất cả',
+    'empty' => 'Không có dữ liệu',
+    'save' => 'Lưu',
+    'created_at' => 'Ngày tạo',
+    'created_by' => 'Người tạo',
+    'updated_at' => 'Ngày cập nhật',
+    'updated_by' => 'Người cập nhật',
+    'deleted_at' => 'Ngày xóa',
+    'read_more' => 'Xem thêm',
+    'article-related' => 'Bài viết liên quan',
+    'search' => 'Tìm kiếm',
+    'select-value' => 'Chọn giá trị',
+    'deleted-successful' => 'Xóa thành công',
+    'deleted-fail' => 'Xóa không thành công',
+    'add-success'  => 'Thêm thành công',
+    'add-fail'     => 'Thêm thất bại',
+    'edit-success' => 'Cập nhật thành công',
+    'edit-fail'    => 'Cập nhật thất bại',
+    'not-found' => 'Không tìm thấy',
+    'not-permission' => 'Không có quyền thao tác',
+    'active' => 'Đã duyệt',
+    'inactive' => 'Chưa duyệt',
+    'name-already-extists' => "Tên đã tồn tại"
+];
