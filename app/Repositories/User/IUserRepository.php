@@ -10,5 +10,4 @@ interface IUserRepository extends IBaseRepository
     // public function findByEmail($email);
 
     // public function getAll();
-    
 }

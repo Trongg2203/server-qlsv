@@ -11,6 +11,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\UnauthorizedException;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use App\Models\UserProfileModel;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -133,4 +134,9 @@ class User extends Authenticatable implements JWTSubject
     // {
     //     return $this->belongsTo(BigScoreClubModel::class, 'club_id', 'id')->select(['id', 'name']);
     // }
+
+    public function userProfile()
+    {
+        return $this->hasOne(UserProfileModel::class, 'user_id', 'id');
+    }
 }

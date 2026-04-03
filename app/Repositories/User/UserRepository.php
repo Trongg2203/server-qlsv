@@ -33,9 +33,11 @@ class UserRepository extends BaseRepository implements IUserRepository
         return $data;
     }
 
-    public function get(){
-        $data = $this->model->where('id','!=',SUPER_ADMIN_ID)->get();
+    public function get()
+    {
+        $data = $this->model->where('id', '!=', SUPER_ADMIN_ID)->get();
 
         return $data;
     }
+    
 }

@@ -2,9 +2,14 @@
 
 namespace App\Providers;
 
-
+use App\Repositories\Module\IModuleRepository;
+use App\Repositories\Module\ModuleRepository;
+use App\Repositories\ModuleAction\IModuleActionRepository;
+use App\Repositories\ModuleAction\ModuleActionRepository;
 use App\Repositories\User\UserRepository;
 use App\Repositories\User\IUserRepository;
+use App\Repositories\UserProfile\IUserProfileRepository;
+use App\Repositories\UserProfile\UserProfileRepository;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Crypt;
@@ -21,8 +26,10 @@ class AppServiceProvider extends ServiceProvider
      */
     private $_listRepoMapInterface = [
 
-        IUserRepository::class => UserRepository::class
-
+        IUserRepository::class => UserRepository::class,
+        IModuleActionRepository::class => ModuleActionRepository::class,
+        IModuleRepository::class => ModuleRepository::class,
+        IUserProfileRepository::class => UserProfileRepository::class,
     ];
 
     public function register()

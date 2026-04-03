@@ -3,15 +3,19 @@
 namespace App\Services;
 
 use App\Repositories\User\IUserRepository;
+use App\Repositories\UserProfile\IUserProfileRepository;
 use App\Services\BaseService;
+use Illuminate\Support\Facades\Auth;
 
 
 class UserService extends BaseService
 {
 
-    public function __construct(IUserRepository $iUserRepository)
+    protected $userProfileRepo;
+    public function __construct(IUserRepository $iUserRepository, IUserProfileRepository $iUserProfileRepository)
     {
         $this->repo = $iUserRepository;
+        $this->userProfileRepo = $iUserProfileRepository;
     }
 
 
@@ -27,4 +31,27 @@ class UserService extends BaseService
     {
         return $this->repo->get();
     }
+
+    public function getDetail()
+    {
+        $user = Auth::user();
+
+        if ($user) {
+            return $this->repo->find($user->id);
+        }
+
+        return null;
+    }
+
+    public function getProfile()
+    {
+        $user = Auth::user();
+
+        if ($user) {
+            return $this->userProfileRepo->getProfile($user->id);
+        }
+
+        return null;
+    }
+    
 }

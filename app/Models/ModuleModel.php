@@ -24,8 +24,8 @@ class ModuleModel extends Model
         'deleted_at',
     ];
 
-    // public function actions()
-    // {
-    //     return $this->hasMany(ModuleActionModel::class, 'module_id', 'id');
-    // }
+    public function actions()
+    {
+        return $this->hasMany(ModuleActionModel::class, 'module_id', 'id');
+    }
 }
