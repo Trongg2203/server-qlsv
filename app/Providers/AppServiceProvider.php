@@ -8,6 +8,8 @@ use App\Repositories\ModuleAction\IModuleActionRepository;
 use App\Repositories\ModuleAction\ModuleActionRepository;
 use App\Repositories\User\UserRepository;
 use App\Repositories\User\IUserRepository;
+use App\Repositories\UserGoal\IUserGoalRepository;
+use App\Repositories\UserGoal\UserGoalRepository;
 use App\Repositories\UserProfile\IUserProfileRepository;
 use App\Repositories\UserProfile\UserProfileRepository;
 use Illuminate\Support\Facades\App;
@@ -30,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
         IModuleActionRepository::class => ModuleActionRepository::class,
         IModuleRepository::class => ModuleRepository::class,
         IUserProfileRepository::class => UserProfileRepository::class,
+        IUserGoalRepository::class => UserGoalRepository::class,
     ];
 
     public function register()

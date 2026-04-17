@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ModuleActionController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\UserGoalController;
 
 Route::middleware(['api', 'cors'])->group(function () {
     Route::prefix('auth')->group(function () {
@@ -17,6 +18,11 @@ Route::middleware(['api', 'cors'])->group(function () {
             Route::get('detail', [AuthController::class, 'getDetail']);
             Route::get('profile', [AuthController::class, 'getProfile']);
             Route::get('get-list', [UserController::class, 'get']);
+        });
+
+        Route::prefix('user-goal')->group(function () {
+            Route::post('create', [UserGoalController::class, 'createUserGoal']);
+            Route::get('get-by-self', [UserGoalController::class, 'getBySelf']);
         });
 
         Route::prefix('module-action')->group(function () {
