@@ -6,6 +6,7 @@ use App\Enums\UserType;
 use App\Http\Controllers\Api\BaseApiController;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Services\UserService;
+use Illuminate\Support\Facades\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -63,5 +64,22 @@ class AuthController extends BaseApiController
     {
         $data = $this->_service->getProfile();
         return $this->successResponse($data);
+    }
+
+    public function register(Request $request)
+    {
+        $data = $request->all();
+
+        $user = $this->_service->findByEmail($data['email']);
+
+        //  email đã tồn tại
+        if ($user) {
+            return $this->errorResponse('Email đã tồn tại', 400);
+        }
+
+        // tạo user mới
+        $newUser = $this->_service->createUser($data);
+
+        return $this->successResponse($newUser, 'Đăng ký thành công');
     }
 }

@@ -23,7 +23,13 @@ class UserService extends BaseService
     function login($email, $pass)
     {
 
-        $data = $this->repo->findByEmail($email);
+        $data = $this->repo->findByEmailAndPassword($email, $pass);
+        return $data;
+    }
+
+    function findByEmail($data)
+    {
+        $data = $this->repo->findByEmail($data['email']);
         return $data;
     }
 
@@ -53,5 +59,9 @@ class UserService extends BaseService
 
         return null;
     }
-    
+
+    public function changePassword($data)
+    {
+        return $this->repo->changePassword($data);
+    }
 }

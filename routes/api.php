@@ -11,6 +11,11 @@ Route::middleware(['api', 'cors'])->group(function () {
     Route::prefix('auth')->group(function () {
         Route::post('login', [AuthController::class, 'login']);
         Route::get('logout', [AuthController::class, 'logout']);
+        Route::post('register', [AuthController::class, 'register']);
+    });
+
+    Route::prefix('user')->group(function () {
+        Route::post('forgot-password', [UserController::class, 'changePassword']);
     });
 
     Route::middleware(['jwt'])->group(function () {
