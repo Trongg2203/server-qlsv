@@ -44,4 +44,23 @@ class UserGoalRepository extends BaseRepository implements IUserGoalRepository
         }
         return null;
     }
+    
+    public function getActiveGoalByUser(string $userId): ?object
+    {
+        return $this->model
+            ->where('user_id', $userId)
+            ->where('status', UserGoalModel::STATUS_ACTIVE)
+            ->latest('created_at')
+            ->first();
+    }
+
+    public function getByUser(string $userId): array
+    {
+        $data = $this->model
+            ->where('user_id', $userId)
+            ->orderByDesc('created_at')
+            ->get();
+
+        return ['total' => $data->count(), 'data' => $data];
+    }
 }

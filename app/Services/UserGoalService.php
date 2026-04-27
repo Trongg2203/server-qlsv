@@ -2,24 +2,47 @@
 
 namespace App\Services;
 
+use App\Models\UserGoalModel;
 use App\Repositories\UserGoal\IUserGoalRepository;
-use App\Services\BaseService;
 
 class UserGoalService extends BaseService
 {
-
-    public function __construct(IUserGoalRepository $iUserGoalRepository)
+    public function __construct(IUserGoalRepository $repo)
     {
-        $this->repo = $iUserGoalRepository;
+        $this->repo = $repo;
     }
 
-    function createUserGoal($data)
+    public function getMyGoals(): array
     {
-        return $this->repo->createUserGoal($data);
+        $userId = auth()->guard('api')->id();
+        return $this->repo->getByUser($userId);
     }
 
-    function getBySelf()
+    public function getActiveGoal(): ?object
     {
-        return $this->repo->getBySelf();
+        $userId = auth()->guard('api')->id();
+        return $this->repo->getActiveGoalByUser($userId);
+    }
+
+    public function createGoal(array $data): object
+    {
+        $userId = auth()->guard('api')->id();
+
+        // Cancel any currently active goal before creating a new one
+        $activeGoal = $this->repo->getActiveGoalByUser($userId);
+        if ($activeGoal) {
+            $this->repo->update($activeGoal->id, ['status' => UserGoalModel::STATUS_CANCELLED]);
+        }
+
+        $data['id']      = generateRandomString();
+        $data['user_id'] = $userId;
+        $data['status']  = UserGoalModel::STATUS_ACTIVE;
+
+        return $this->repo->create($data);
+    }
+
+    public function updateGoal(array $data): object
+    {
+        return $this->repo->update($data['id'], $data);
     }
 }
