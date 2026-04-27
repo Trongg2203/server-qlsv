@@ -56,19 +56,11 @@ class UserProfileModel extends BaseModel
         return $this->belongsTo(User::class, 'user_id', 'id')
             ->select(
                 'id',
-                'code',
                 'name',
                 'email',
                 'phone',
-                'birthday',
-                'avatar',
-                'gender',
-                'address',
-                'password',
                 'type',
                 'status',
-                'cccd',
             );
-        // belongsTo(RelatedModel::class, 'foreign_key_on_this_table', 'owner_key_on_related_table')
     }
 }

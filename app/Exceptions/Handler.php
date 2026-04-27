@@ -59,7 +59,7 @@ class Handler extends ExceptionHandler
                 $code = Response::HTTP_BAD_REQUEST;
         }
 
-        if ($request->expectsJson()) {
+        if ($request->expectsJson() || $request->is('api/*')) {
             return $this->errorResponse($message, $code);
         } else {
             if (env('APP_ENV') != 'Production') {
