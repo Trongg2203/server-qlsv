@@ -15,6 +15,8 @@ use App\Repositories\MealPlan\MealPlanRepository;
 use App\Repositories\MealPlanDetail\IMealPlanDetailRepository;
 use App\Repositories\MealPlanDetail\MealPlanDetailRepository;
 use App\Repositories\Module\IModuleRepository;
+use App\Repositories\ProductImage\IProductImageRepository;
+use App\Repositories\ProductImage\ProductImageRepository;
 use App\Repositories\Module\ModuleRepository;
 use App\Repositories\ModuleAction\IModuleActionRepository;
 use App\Repositories\ModuleAction\ModuleActionRepository;
@@ -43,6 +45,7 @@ class AppServiceProvider extends ServiceProvider
         IFoodRatingRepository::class        => FoodRatingRepository::class,
         IMealPlanRepository::class          => MealPlanRepository::class,
         IMealPlanDetailRepository::class    => MealPlanDetailRepository::class,
+        IProductImageRepository::class      => ProductImageRepository::class,
     ];
 
     public function register()

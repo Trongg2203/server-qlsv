@@ -73,6 +73,9 @@ Route::middleware(['api', 'cors'])->group(function () {
             Route::post('/', [FoodController::class, 'store']);
             Route::put('{id}', [FoodController::class, 'update']);
             Route::delete('{id}', [FoodController::class, 'destroy']);
+            // Food images
+            Route::post('{id}/images', [FoodController::class, 'uploadImages']);
+            Route::delete('{id}/images/{imageId}', [FoodController::class, 'destroyImage']);
         });
 
         // Food Ratings
