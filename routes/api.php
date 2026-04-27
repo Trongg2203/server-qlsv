@@ -22,7 +22,9 @@ Route::middleware(['api', 'cors'])->group(function () {
         Route::prefix('user')->group(function () {
             Route::get('detail', [AuthController::class, 'getDetail']);
             Route::get('profile', [AuthController::class, 'getProfile']);
-            Route::get('get-list', [UserController::class, 'get']);
+            Route::get('all-active', [UserController::class, 'getAllActive']);
+            Route::get('list', [UserController::class, 'get']);
+            Route::delete('delete/{id}', [UserController::class, 'delete']);
         });
 
         Route::prefix('user-goal')->group(function () {

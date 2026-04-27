@@ -20,9 +20,9 @@ class UserController extends BaseApiController
     }
 
 
-    public function get()
+    public function getAllActive()
     {
-        $data = $this->_service->get();
+        $data = $this->_service->getAllActive();
         return $this->successResponse($data);
     }
 
@@ -49,5 +49,19 @@ class UserController extends BaseApiController
         //     'message' => 'Đổi mật khẩu thành công',
         //     'data' => $result
         // ]);
+    }
+
+    public function get()
+    {
+        $data = $this->_service->get();
+        return $this->successResponse($data);
+    }
+    public function delete($id)
+    {
+        $result = $this->_service->delete($id);
+        if ($result) {
+            return $this->successResponse(null, 'Xóa thành công');
+        }
+        return $this->errorResponse('User not found', 404);
     }
 }

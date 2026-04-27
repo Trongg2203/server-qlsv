@@ -12,10 +12,12 @@ class UserService extends BaseService
 {
 
     protected $userProfileRepo;
+    protected $user;
     public function __construct(IUserRepository $iUserRepository, IUserProfileRepository $iUserProfileRepository)
     {
         $this->repo = $iUserRepository;
         $this->userProfileRepo = $iUserProfileRepository;
+        $this->user = $iUserRepository;
     }
 
 
@@ -33,9 +35,9 @@ class UserService extends BaseService
         return $data;
     }
 
-    function get()
+    function getAllActive()
     {
-        return $this->repo->get();
+        return $this->repo->getAllActive();
     }
 
     public function getDetail()
@@ -63,5 +65,20 @@ class UserService extends BaseService
     public function changePassword($data)
     {
         return $this->repo->changePassword($data);
+    }
+
+    public function get()
+    {
+        return $this->repo->get();
+    }
+
+    public function delete($id): bool
+    {
+        $user = $this->repo->find($id);
+        if ($user) {
+            return  $this->user->delete($id);
+        }
+
+        return false;
     }
 }

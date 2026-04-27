@@ -45,11 +45,18 @@ class UserRepository extends BaseRepository implements IUserRepository
         return null;
     }
 
-    public function get()
+    public function getAllActive()
     {
         $data = $this->model->where('id', '!=', SUPER_ADMIN_ID)->get();
 
         return $data;
+    }
+
+    public function get()
+    {
+        $this->model = $this->model->where('id', '!=', SUPER_ADMIN_ID);
+
+        return parent::get($this->model);
     }
 
 
