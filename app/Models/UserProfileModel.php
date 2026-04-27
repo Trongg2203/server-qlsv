@@ -59,8 +59,8 @@ class UserProfileModel extends BaseModel
                 'name',
                 'email',
                 'phone',
-                'type',
-                'status',
+                'role',
+                'account_status',
             );
     }
 }

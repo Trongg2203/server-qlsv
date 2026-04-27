@@ -24,6 +24,15 @@ class MealPlanRepository extends BaseRepository implements IMealPlanRepository
         return ['total' => $data->count(), 'data' => $data];
     }
 
+    public function getByIdAndUser(string $id, string $userId): ?object
+    {
+        return $this->model
+            ->with(['details.food:id,name,serving_size,serving_unit,calories,protein,carbs,fat'])
+            ->where('id', $id)
+            ->where('user_id', $userId)
+            ->first();
+    }
+
     public function getActiveByUser(string $userId): ?object
     {
         return $this->model

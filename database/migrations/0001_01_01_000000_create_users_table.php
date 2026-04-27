@@ -12,13 +12,27 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
+            $table->char('id', 10)->collation('utf8mb4_unicode_ci');
+            $table->string('name', 255);
+            $table->string('email', 255);
+            $table->string('password', 255);
+            $table->char('salt', 5)->collation('utf8mb4_unicode_ci');
+            $table->string('avatar', 500)->nullable();
+            $table->string('phone', 20)->nullable();
+            $table->tinyInteger('role')->default(0)
+                ->comment('0=user, 1=admin');
+            $table->tinyInteger('account_status')->default(0)
+                ->comment('0=pending, 1=active, 2=rejected');
+            $table->timestamp('last_login_at')->nullable();
+            $table->timestamp('created_at')->useCurrent();
+            $table->char('created_by', 10)->collation('utf8mb4_unicode_ci')->nullable();
+            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+            $table->char('updated_by', 10)->collation('utf8mb4_unicode_ci')->nullable();
+            $table->timestamp('deleted_at')->nullable();
+            $table->char('deleted_by', 10)->collation('utf8mb4_unicode_ci')->nullable();
+
+            $table->primary('id');
+            $table->unique('email', 'uq_users_email');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

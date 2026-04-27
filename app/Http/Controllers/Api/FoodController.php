@@ -66,7 +66,15 @@ class FoodController extends BaseApiController
     }
 
     /**
-     * POST /api/foods/{id}/images
+     * GET /api/foods/{id}/images
+     */
+    public function getImages(string $id)
+    {
+        $images = $this->_imageService->getByFood($id);
+        return $this->successResponse($images);
+    }
+
+    /**
      * Body: multipart/form-data, field "images[]" (1 hoặc nhiều file)
      */
     public function uploadImages(Request $request, string $id)

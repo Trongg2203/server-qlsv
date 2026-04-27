@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 /**
  * Seed 80 người dùng gym Việt Nam thực tế cùng với:
@@ -166,26 +165,36 @@ class GymUsersSeeder extends Seeder
             [$name, $emailPrefix, $gender, $dob, $height, $weight, $activity, $goal] = $u;
 
             /* ── 1. users ──────────────────────────────── */
-            $userId = DB::table('users')->insertGetId([
-                'name'              => $name,
-                'email'             => $emailPrefix . '@gmail.com',
-                'email_verified_at' => now(),
-                'password'          => Hash::make('Password@123'),
-                'remember_token'    => generateRandomString(10),
-                'created_at'        => now(),
-                'updated_at'        => now(),
+            $userId = generateRandomString(10);
+            $salt   = generateRandomString(5);
+            DB::table('users')->insert([
+                'id'             => $userId,
+                'name'           => $name,
+                'email'          => $emailPrefix . '@gmail.com',
+                'password'       => md5('Password@123' . $salt),
+                'salt'           => $salt,
+                'role'           => 0,  // user
+                'account_status' => 1,  // active
+                'created_at'     => now(),
             ]);
 
-            $userIdStr = (string) $userId;   // char(10) trong các bảng con
-
             /* ── 2. user_profiles ─────────────────────── */
+            $bmiValue = round($weight / pow($height / 100, 2), 2);
+            $bmiCat   = match(true) {
+                $bmiValue < 18.5 => 'Underweight',
+                $bmiValue < 25.0 => 'Normal',
+                $bmiValue < 30.0 => 'Overweight',
+                default          => 'Obese',
+            };
             DB::table('user_profiles')->insert([
                 'id'             => generateRandomString(10),
-                'user_id'        => $userIdStr,
+                'user_id'        => $userId,
                 'date_of_birth'  => $dob,
                 'gender'         => $gender,
                 'height'         => $height,
                 'current_weight' => $weight,
+                'bmi'            => $bmiValue,
+                'bmi_category'   => $bmiCat,
                 'activity_level' => $activity,
                 'created_at'     => now(),
                 'updated_at'     => now(),
@@ -209,7 +218,7 @@ class GymUsersSeeder extends Seeder
             $goalId = generateRandomString(10);
             DB::table('user_goals')->insert([
                 'id'                 => $goalId,
-                'user_id'            => $userIdStr,
+                'user_id'            => $userId,
                 'goal_type'          => $goal,
                 'start_weight'       => $weight,
                 'target_weight'      => $targetWeight,
@@ -246,7 +255,7 @@ class GymUsersSeeder extends Seeder
 
             DB::table('calorie_calculations')->insert([
                 'id'              => generateRandomString(10),
-                'user_id'         => $userIdStr,
+                'user_id'         => $userId,
                 'goal_id'         => $goalId,
                 'bmr'             => $bmr,
                 'tdee'            => $tdee,
