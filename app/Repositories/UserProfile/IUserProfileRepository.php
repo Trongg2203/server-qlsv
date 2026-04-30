@@ -6,5 +6,7 @@ use App\Repositories\IBaseRepository;
 
 interface IUserProfileRepository extends IBaseRepository
 {
-    public  function getProfile($user_id);
+    public function getMyProfile();
+    public function updateMyProfile(array $attributes);
+    public function createMyProfile(array $attributes);
 }

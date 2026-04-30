@@ -33,7 +33,7 @@ class CalorieCalculationService extends BaseService
     public function calculateAndSave(): object
     {
         $userId  = auth()->guard('api')->id();
-        $profile = $this->profileRepo->getProfile($userId);
+        $profile = $this->profileRepo->getMyProfile();
         $goal    = $this->goalRepo->getActiveGoalByUser($userId);
 
         abort_if(!$profile, 422, 'Chưa có thông tin hồ sơ cá nhân.');

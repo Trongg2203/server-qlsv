@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Enums\UserType;
 use App\Http\Controllers\Api\BaseApiController;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\UserProfile\StoreUserProfileRequest;
+use App\Http\Requests\UserProfile\UpdateUserProfileRequest;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -62,8 +64,34 @@ class AuthController extends BaseApiController
     }
     public function getProfile()
     {
-        $data = $this->_service->getProfile();
+        $data = $this->_service->getMyProfile();
         return $this->successResponse($data);
+    }
+    
+    public function updateProfile(UpdateUserProfileRequest $request)
+    {
+        $result = $this->_service->updateMyProfile($request->validated());
+        
+        if ($result) {
+            return $this->successResponse($result, 'Cập nhật hồ sơ thành công.');
+        }
+        
+        return $this->errorResponse('Không tìm thấy hồ sơ người dùng.', Response::HTTP_NOT_FOUND);
+    }
+
+    public function createProfile(StoreUserProfileRequest $request)
+    {
+        $result = $this->_service->createMyProfile($request->validated());
+
+        if ($result === 'exists') {
+            return $this->errorResponse('Hồ sơ đã tồn tại.', Response::HTTP_CONFLICT);
+        }
+
+        if ($result) {
+            return $this->successResponse($result, 'Tạo hồ sơ thành công.', Response::HTTP_CREATED);
+        }
+
+        return $this->errorResponse('Không tìm thấy người dùng.', Response::HTTP_NOT_FOUND);
     }
 
     public function register(Request $request)

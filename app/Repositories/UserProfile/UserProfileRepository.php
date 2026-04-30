@@ -17,13 +17,42 @@ class UserProfileRepository extends BaseRepository implements IUserProfileReposi
         $this->model = $model;
     }
 
-    public function getProfile($user_id)
+    public function getMyProfile()
     {
-        if (!$user_id) return;
+        $userId = auth()->guard('api')->id();
+        if (!$userId) return;
 
         return $this->model
             ->with('user')
-            ->where('user_id', $user_id)
+            ->where('user_id', $userId)
             ->first();
+    }
+
+    public function updateMyProfile(array $attributes)
+    {
+        $userId = auth()->guard('api')->id();
+        if (!$userId) return false;
+
+        $profile = $this->model->where('user_id', $userId)->first();
+        if (!$profile) {
+            return false;
+        }
+
+        $profile->update($attributes);
+
+        return $this->getMyProfile();
+    }
+
+    public function createMyProfile(array $attributes)
+    {
+        $userId = auth()->guard('api')->id();
+        if (!$userId) return false;
+
+        $attributes['id'] = generateRandomString();
+        $attributes['user_id'] = $userId;
+
+        $created = $this->model->create($attributes);
+
+        return $created ? $this->getMyProfile() : false;
     }
 }

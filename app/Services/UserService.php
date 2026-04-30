@@ -54,7 +54,7 @@ class UserService extends BaseService
 
     public function getDetail()
     {
-        $user = Auth::user();
+        $user = Auth::guard('api')->user();
 
         if ($user) {
             return $this->repo->find($user->id);
@@ -63,15 +63,97 @@ class UserService extends BaseService
         return null;
     }
 
-    public function getProfile()
+    public function getMyProfile()
     {
-        $user = Auth::user();
+        $user = Auth::guard('api')->user();
 
         if ($user) {
-            return $this->userProfileRepo->getProfile($user->id);
+            return $this->userProfileRepo->getMyProfile();
         }
 
         return null;
+    }
+
+    public function updateMyProfile(array $data)
+    {
+        $user = Auth::guard('api')->user();
+
+        if (!$user) {
+            return null;
+        }
+
+        $profile = $this->userProfileRepo->getMyProfile();
+        if (!$profile) {
+            return null;
+        }
+
+        if (array_key_exists('height', $data) || array_key_exists('current_weight', $data)) {
+            $height = $data['height'] ?? $profile->height;
+            $weight = $data['current_weight'] ?? $profile->current_weight;
+            $bmiData = $this->calculateBmiData($height, $weight);
+            if ($bmiData) {
+                $data = array_merge($data, $bmiData);
+            }
+        }
+
+        return $this->userProfileRepo->updateMyProfile($data);
+    }
+
+    public function createMyProfile(array $data)
+    {
+        $user = Auth::guard('api')->user();
+
+        if (!$user) {
+            return null;
+        }
+
+        $existing = $this->userProfileRepo->getMyProfile();
+        if ($existing) {
+            return 'exists';
+        }
+
+        $bmiData = $this->calculateBmiData($data['height'], $data['current_weight']);
+        if ($bmiData) {
+            $data = array_merge($data, $bmiData);
+        }
+
+        return $this->userProfileRepo->createMyProfile($data);
+    }
+
+    private function calculateBmiData($heightCm, $weightKg): ?array
+    {
+        $height = (float) $heightCm;
+        $weight = (float) $weightKg;
+
+        if ($height <= 0 || $weight <= 0) {
+            return null;
+        }
+
+        $heightMeters = $height / 100;
+        $bmi = $weight / ($heightMeters * $heightMeters);
+        $bmiRounded = round($bmi, 2);
+
+        return [
+            'bmi' => $bmiRounded,
+            'bmi_category' => $this->getBmiCategory($bmiRounded),
+        ];
+    }
+
+    private function getBmiCategory(float $bmi): string
+    {
+        if ($bmi < 18.5) {
+            return 'Underweight';
+        }
+
+        if ($bmi < 25) {
+            return 'Normal';
+        }
+
+        if ($bmi < 30) {
+            return 'Overweight';
+        }
+
+        return 'Obese';
     }
 
     public function changePassword($data)
