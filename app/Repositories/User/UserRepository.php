@@ -38,11 +38,27 @@ class UserRepository extends BaseRepository implements IUserRepository
     {
         $user = $this->model->where('email', $email)->first();
 
-        if ($user && $user->password === md5($password)) {
+        if (!$user) {
+            return null;
+        }
+
+        if ($this->isBcryptHash($user->password) && Hash::check($password, $user->password)) {
+            return $user;
+        }
+
+        // Support legacy md5 passwords, then re-hash to bcrypt.
+        if ($user->password === md5($password)) {
+            $user->password = Hash::make($password);
+            $user->save();
             return $user;
         }
 
         return null;
+    }
+
+    private function isBcryptHash($hash): bool
+    {
+        return is_string($hash) && preg_match('/^\$2[aby]\$/', $hash) === 1;
     }
 
     public function getAllActive()
@@ -70,7 +86,7 @@ class UserRepository extends BaseRepository implements IUserRepository
 
 
         // cập nhật password mới
-        $user->password = md5($data['new_password']);
+        $user->password = Hash::make($data['new_password']);
         $user->save();
 
         return $user;

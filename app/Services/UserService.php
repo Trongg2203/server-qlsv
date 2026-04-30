@@ -6,6 +6,7 @@ use App\Repositories\User\IUserRepository;
 use App\Repositories\UserProfile\IUserProfileRepository;
 use App\Services\BaseService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 
 class UserService extends BaseService
@@ -33,6 +34,17 @@ class UserService extends BaseService
     {
         $data = $this->repo->findByEmail($data['email']);
         return $data;
+    }
+
+    public function createUser($data)
+    {
+        if (!isset($data['password'])) {
+            return null;
+        }
+
+        $data['password'] = Hash::make($data['password']);
+
+        return $this->repo->create($data);
     }
 
     function getAllActive()
