@@ -158,4 +158,21 @@ class MealPlanService extends BaseService
         $userId = auth()->guard('api')->id();
         return $this->repo->getActiveByUser($userId);
     }
+
+    public function getPlanById(string $id): ?object
+    {
+        $userId = auth()->guard('api')->id();
+        return $this->repo->getByIdAndUser($id, $userId);
+    }
+
+    public function cancelPlan(string $id): bool
+    {
+        $userId = auth()->guard('api')->id();
+        $plan   = $this->repo->getByIdAndUser($id, $userId);
+        if (!$plan) {
+            return false;
+        }
+        $this->repo->update($plan->id, ['status' => MealPlanModel::STATUS_REPLACED]);
+        return true;
+    }
 }

@@ -32,4 +32,14 @@ class CalorieCalculationController extends BaseApiController
         $data = $this->_service->getLatest();
         return $this->successResponse($data);
     }
+
+    /**
+     * Lấy lịch sử tính toán calo.
+     * GET /api/calorie/history
+     */
+    public function history()
+    {
+        $data = $this->_service->getHistory();
+        return $this->successResponse($data);
+    }
 }

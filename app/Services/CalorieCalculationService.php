@@ -90,6 +90,12 @@ class CalorieCalculationService extends BaseService
         return $this->repo->getLatestByUser($userId);
     }
 
+    public function getHistory(): array
+    {
+        $userId = auth()->guard('api')->id();
+        return $this->repo->getHistoryByUser($userId);
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     private function applyGoalAdjustment(float $tdee, object $goal, int $gender): array

@@ -16,12 +16,15 @@ Route::middleware(['api', 'cors'])->group(function () {
     // ── AUTH ────────────────────────────────────────────────────────────────
     Route::prefix('auth')->group(function () {
         Route::post('login', [AuthController::class, 'login']);
+        Route::post('register', [AuthController::class, 'register']);
+        Route::post('refresh', [AuthController::class, 'refresh']);
         Route::get('logout', [AuthController::class, 'logout']);
         Route::post('register', [AuthController::class, 'register']);
     });
 
     Route::prefix('user')->group(function () {
         Route::post('forgot-password', [UserController::class, 'changePassword']);
+        Route::get('me', [AuthController::class, 'me']);
     });
 
     // ── FOODS (public — Python cũng gọi endpoint này) ───────────────────────
@@ -53,6 +56,8 @@ Route::middleware(['api', 'cors'])->group(function () {
         Route::prefix('user-goal')->group(function () {
             Route::post('create', [UserGoalController::class, 'createUserGoal']);
             Route::get('get-by-self', [UserGoalController::class, 'getBySelf']);
+            Route::put('profile', [AuthController::class, 'updateProfile']);
+            Route::get('get-list', [UserController::class, 'get']);
         });
 
         // Module action
@@ -73,6 +78,7 @@ Route::middleware(['api', 'cors'])->group(function () {
         Route::prefix('calorie')->group(function () {
             Route::post('calculate', [CalorieCalculationController::class, 'calculate']);
             Route::get('latest', [CalorieCalculationController::class, 'latest']);
+            Route::get('history', [CalorieCalculationController::class, 'history']);
         });
 
         // Food Categories (admin write)
@@ -88,6 +94,7 @@ Route::middleware(['api', 'cors'])->group(function () {
             Route::put('{id}', [FoodController::class, 'update']);
             Route::delete('{id}', [FoodController::class, 'destroy']);
             // Food images
+            Route::get('{id}/images', [FoodController::class, 'getImages']);
             Route::post('{id}/images', [FoodController::class, 'uploadImages']);
             Route::delete('{id}/images/{imageId}', [FoodController::class, 'destroyImage']);
         });
@@ -104,6 +111,8 @@ Route::middleware(['api', 'cors'])->group(function () {
         Route::prefix('meal-plans')->group(function () {
             Route::get('/', [MealPlanController::class, 'index']);
             Route::get('active', [MealPlanController::class, 'active']);
+            Route::get('{id}', [MealPlanController::class, 'show']);
+            Route::delete('{id}', [MealPlanController::class, 'destroy']);
             Route::post('generate', [MealPlanController::class, 'generate']);
         });
     });

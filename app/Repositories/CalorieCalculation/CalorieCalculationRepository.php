@@ -29,4 +29,13 @@ class CalorieCalculationRepository extends BaseRepository implements ICalorieCal
             ->latest('created_at')
             ->first();
     }
+
+    public function getHistoryByUser(string $userId): array
+    {
+        $data = $this->model
+            ->where('user_id', $userId)
+            ->orderByDesc('created_at')
+            ->get();
+        return ['total' => $data->count(), 'data' => $data];
+    }
 }

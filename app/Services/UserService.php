@@ -6,55 +6,49 @@ use App\Repositories\User\IUserRepository;
 use App\Repositories\UserProfile\IUserProfileRepository;
 use App\Services\BaseService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 
 class UserService extends BaseService
 {
 
     protected $userProfileRepo;
-    protected $user;
     public function __construct(IUserRepository $iUserRepository, IUserProfileRepository $iUserProfileRepository)
     {
         $this->repo = $iUserRepository;
         $this->userProfileRepo = $iUserProfileRepository;
-        $this->user = $iUserRepository;
     }
 
 
 
     function login($email, $pass)
     {
+        $user = $this->repo->findByEmail($email);
 
-        $data = $this->repo->findByEmailAndPassword($email, $pass);
-        return $data;
-    }
-
-    function findByEmail($data)
-    {
-        $data = $this->repo->findByEmail($data['email']);
-        return $data;
-    }
-
-    public function createUser($data)
-    {
-        if (!isset($data['password'])) {
-            return null;
+        if ($user && $user->password === md5($pass . $user->salt)) {
+            return $user;
         }
 
-        $data['password'] = Hash::make($data['password']);
-
-        return $this->repo->create($data);
+        return null;
     }
 
-    function getAllActive()
+    public function hashPasswordWithSalt(string $password): array
     {
-        return $this->repo->getAllActive();
+        $salt = generateRandomString(5);
+        return [
+            'hashedPassword' => md5($password . $salt),
+            'salt'           => $salt,
+        ];
+    }
+
+    function get()
+    {
+        return $this->repo->get();
     }
 
     public function getDetail()
     {
-        $user = Auth::guard('api')->user();
+        $user = Auth::user();
 
         if ($user) {
             return $this->repo->find($user->id);
@@ -63,116 +57,93 @@ class UserService extends BaseService
         return null;
     }
 
-    public function getMyProfile()
+    public function getProfile()
     {
-        $user = Auth::guard('api')->user();
+        $user = Auth::user();
 
         if ($user) {
-            return $this->userProfileRepo->getMyProfile();
+            return $this->userProfileRepo->getProfile($user->id);
         }
 
         return null;
     }
 
-    public function updateMyProfile(array $data)
+    /**
+     * Đăng ký tài khoản mới + tạo user_profile trong transaction.
+     */
+    public function register(array $data): object
     {
-        $user = Auth::guard('api')->user();
+        return DB::transaction(function () use ($data) {
+            ['hashedPassword' => $hashed, 'salt' => $salt] = $this->hashPasswordWithSalt($data['password']);
 
-        if (!$user) {
-            return null;
-        }
+            $userId = generateRandomString(10);
+            $user   = $this->repo->create([
+                'id'             => $userId,
+                'name'           => $data['name'],
+                'email'          => $data['email'],
+                'password'       => $hashed,
+                'salt'           => $salt,
+                'role'           => 0,
+                'account_status' => 1,
+                'created_at'     => now(),
+            ]);
 
-        $profile = $this->userProfileRepo->getMyProfile();
+            $weight = (float) $data['weight'];
+            $height = (float) $data['height'];
+            $bmi    = round($weight / pow($height / 100, 2), 2);
+            $bmiCat = $this->bmiCategory($bmi);
+
+            $this->userProfileRepo->create([
+                'id'             => generateRandomString(10),
+                'user_id'        => $userId,
+                'date_of_birth'  => $data['date_of_birth'],
+                'gender'         => $data['gender'],
+                'height'         => $height,
+                'current_weight' => $weight,
+                'bmi'            => $bmi,
+                'bmi_category'   => $bmiCat,
+                'activity_level' => $data['activity_level'],
+                'created_at'     => now(),
+'updated_at'     => now(),
+            ]);
+
+            return $user;
+        });
+    }
+
+    /**
+     * Cập nhật thông tin hồ sơ của user đang đăng nhập.
+     */
+    public function updateProfile(array $data): ?object
+    {
+        $user    = Auth::user();
+        $profile = $this->userProfileRepo->getProfile($user->id);
+
         if (!$profile) {
             return null;
         }
 
-        if (array_key_exists('height', $data) || array_key_exists('current_weight', $data)) {
-            $height = $data['height'] ?? $profile->height;
-            $weight = $data['current_weight'] ?? $profile->current_weight;
-            $bmiData = $this->calculateBmiData($height, $weight);
-            if ($bmiData) {
-                $data = array_merge($data, $bmiData);
-            }
+        $updateData = array_filter($data, fn($v) => $v !== null);
+
+        // Tự động tính BMI nếu weight hoặc height thay đổi
+        $newWeight = $updateData['current_weight'] ?? $profile->current_weight;
+        $newHeight = $updateData['height'] ?? $profile->height;
+        if (isset($updateData['current_weight']) || isset($updateData['height'])) {
+            $updateData['bmi']          = round((float)$newWeight / pow((float)$newHeight / 100, 2), 2);
+            $updateData['bmi_category'] = $this->bmiCategory($updateData['bmi']);
         }
 
-        return $this->userProfileRepo->updateMyProfile($data);
+        $this->userProfileRepo->update($profile->id, $updateData);
+
+        return $this->userProfileRepo->getProfile($user->id);
     }
 
-    public function createMyProfile(array $data)
+    private function bmiCategory(float $bmi): string
     {
-        $user = Auth::guard('api')->user();
-
-        if (!$user) {
-            return null;
-        }
-
-        $existing = $this->userProfileRepo->getMyProfile();
-        if ($existing) {
-            return 'exists';
-        }
-
-        $bmiData = $this->calculateBmiData($data['height'], $data['current_weight']);
-        if ($bmiData) {
-            $data = array_merge($data, $bmiData);
-        }
-
-        return $this->userProfileRepo->createMyProfile($data);
-    }
-
-    private function calculateBmiData($heightCm, $weightKg): ?array
-    {
-        $height = (float) $heightCm;
-        $weight = (float) $weightKg;
-
-        if ($height <= 0 || $weight <= 0) {
-            return null;
-        }
-
-        $heightMeters = $height / 100;
-        $bmi = $weight / ($heightMeters * $heightMeters);
-        $bmiRounded = round($bmi, 2);
-
-        return [
-            'bmi' => $bmiRounded,
-            'bmi_category' => $this->getBmiCategory($bmiRounded),
-        ];
-    }
-
-    private function getBmiCategory(float $bmi): string
-    {
-        if ($bmi < 18.5) {
-            return 'Underweight';
-        }
-
-        if ($bmi < 25) {
-            return 'Normal';
-        }
-
-        if ($bmi < 30) {
-            return 'Overweight';
-        }
-
+        if ($bmi < 18.5) return 'Underweight';
+        if ($bmi < 25.0) return 'Normal';
+        if ($bmi < 30.0) return 'Overweight';
         return 'Obese';
     }
 
-    public function changePassword($data)
-    {
-        return $this->repo->changePassword($data);
-    }
-
-    public function get()
-    {
-        return $this->repo->get();
-    }
-
-    public function delete($id): bool
-    {
-        $user = $this->repo->find($id);
-        if ($user) {
-            return  $this->user->delete($id);
-        }
-
-        return false;
-    }
 }

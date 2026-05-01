@@ -8,4 +8,5 @@ interface ICalorieCalculationRepository extends IBaseRepository
 {
     public function getLatestByUser(string $userId): ?object;
     public function getLatestByGoal(string $goalId): ?object;
+    public function getHistoryByUser(string $userId): array;
 }

@@ -32,6 +32,32 @@ class MealPlanController extends BaseApiController
     }
 
     /**
+     * Lấy chi tiết một meal plan theo id.
+     * GET /api/meal-plans/{id}
+     */
+    public function show(string $id)
+    {
+        $data = $this->_service->getPlanById($id);
+        if (!$data) {
+            return $this->errorResponse('Không tìm thấy kế hoạch.', \Symfony\Component\HttpFoundation\Response::HTTP_NOT_FOUND);
+        }
+        return $this->successResponse($data);
+    }
+
+    /**
+     * Hủy/xóa một meal plan.
+     * DELETE /api/meal-plans/{id}
+     */
+    public function destroy(string $id)
+    {
+        $ok = $this->_service->cancelPlan($id);
+        if (!$ok) {
+            return $this->errorResponse('Không tìm thấy kế hoạch.', \Symfony\Component\HttpFoundation\Response::HTTP_NOT_FOUND);
+        }
+        return $this->successResponse(null, 'Hủy kế hoạch thành công.');
+    }
+
+    /**
      * Tạo meal plan 7 ngày mới bằng AI.
      * POST /api/meal-plans/generate
      */
